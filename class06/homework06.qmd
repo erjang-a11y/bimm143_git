@@ -1,0 +1,59 @@
+---
+title: "Homework 6: Improving Functions"
+author: "Erin (PID: A17713992)"
+format: pdf
+---
+
+## Improving analysis code by writing functions
+
+Can you improve this analysis code? \
+library(bio3d) \
+s1 <- read.pdb("4AKE") # kinase with drug \
+s2 <- read.pdb("1AKE") # kinase no drug \
+s3 <- read.pdb("1E4Y") # kinase with drug \
+
+s1.chainA <- trim.pdb(s1, chain="A", elety="CA") \
+s2.chainA <- trim.pdb(s2, chain="A", elety="CA") \
+s3.chainA <- trim.pdb(s1, chain="A", elety="CA") \
+
+s1.b <- s1.chainA$atom$b \
+s2.b <- s2.chainA$atom$b \
+s3.b <- s3.chainA$atom$b \
+
+plotb3(s1.b, sse=s1.chainA, typ="l", ylab="Bfactor") \
+plotb3(s2.b, sse=s2.chainA, typ="l", ylab="Bfactor") \
+plotb3(s3.b, sse=s3.chainA, typ="l", ylab="Bfactor") \
+
+
+> **Q6**. How would you generalize the original code above to work with any set of input
+protein structures?
+
+**Inputs**: There are 3 inputs to this function: pdb_id (the PDB structure ID to analyze), chain_id (which protein chain to keep), and atom_type (which atom type to keep). \
+**Purpose/How to Use**: The function reads a protein structure from the Protein Data Bank (PDB) using an ID, trims the structure, extracts the corresponding B-factors, and plots the B-factors. \
+**Output**: The output of the function is a plot of the B-factors for the selected atoms.
+
+```{r}
+library(bio3d)
+
+plot_pdb_bfactors <- function(pdb_id, chain_id = "A", atom_type = "CA") {
+  # read pdb id
+  pdb <- read.pdb(pdb_id) 
+  
+  # trim to desired structure
+  chainA <- trim.pdb(pdb, chain = chain_id, elety = atom_type) 
+  
+  # extract B-factors
+  b <- chainA$atom$b 
+  
+  # plot
+  plotb3(b, sse = chainA, typ = "l", ylab = "Bfactor") 
+}
+```
+
+```{r}
+# example output:
+plot_pdb_bfactors("4AKE") 
+```
+
+
+
