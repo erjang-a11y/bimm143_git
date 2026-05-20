@@ -1,0 +1,330 @@
+---
+title: "Class 10: Structural Bioinformatics 1"
+author: "Erin Jang (PID: A17713992)"
+format: pdf
+toc: true
+---
+
+## 
+
+The main repository of high-resolution structural data on biomolecules is called the **Protein Data Bank** (PDB). 
+
+## PDB statistics
+
+What is in the PDB in terms of molecule type and structure determination method?
+
+Read a CSV file of current PDB stats obtained from https://www.rcsb.org/stats/summary
+
+```{r}
+pdb <- read.csv("Data Export Summary.csv")
+pdb
+```
+
+```{r}
+pdb$X.ray
+```
+This print ot above `pdb$X.ray` is "character" not "numeric". Therefore I can't do math with it. We need to fix this...
+
+Two functions that can help here are `sub()` and `as.numeric()`
+```{r}
+# We want to get rid (or sub out) commas:
+x <- pdb$X.ray
+tmp <- sub(",", "", x)
+sum(as.numeric(tmp))
+```
+
+We could make a function to do this:
+```{r}
+rm.comma <- function(x) {
+  tmp <- sub(",", "", x)
+  sum(as.numeric(tmp))
+}
+```
+```{r}
+n.tot <- rm.comma(pdb$Total)
+n.xray <- rm.comma(pdb$X.ray)
+n.em <- rm.comma(pdb$EM)
+
+n.xray/n.tot * 100
+n.em/n.tot * 100
+```
+
+> Q1. What percentage of structures in the PDB are solved by X-Ray and Electron Microscopy?
+
+80.49% of structures in the PDB are solved by X-Ray and 13.38% by Electron Microscopy. 
+
+We could also use a different import function for this CSV that speaks American (i.e. deals with commas in numbers in a comma separated value file)
+
+```{r}
+library(readr)
+
+pdb <- read_csv("Data Export Summary.csv")
+```
+
+> Q2. How many total protein structures are there in the dataset? What proportion of structures in the PDB are protein?
+
+```{r}
+pdb$Total[1]
+```
+The total number of protein sequences in UniProt is 202,554,314.
+
+```{r}
+217375 / 202554314 * 100
+```
+
+> **Key-point**: We have a very, very small structural coverage of known proteins (~0.1%). Most structures we know about (~80%) come from one method (X-ray crystallography). 
+
+> Q3: Type HIV in the PDB website search box on the home page and determine how many HIV-1 protease structures are in the current PDB?
+
+There are 783 HIV-1 protease structures in the current PDB. 
+
+## Visualizing PDB data with Mol-star
+
+Main stand alone web version with all features is at https://molstar.org/viewer/. 
+
+![The HIV-protease enzyme is a homodimer with two chains.](1HSG.png)
+
+> Q4: Water molecules normally have 3 atoms. Why do we see just one atom per water molecule in this structure?
+
+The hydrogen atoms are usually not visible, especially at 2.00 Å resolution, so each water molecule is shown only by its oxygen atom.
+
+![Surface display showing the binding cleft site for the inhibitor (drug) molecule.](1HSG 2.png)
+
+> Q5: There is a critical “conserved” water molecule in the binding site. Can you identify this water molecule? What residue number does this water molecule have?
+
+The critical "conserved" water molecule in the binding site is residue 308. It bridges interactions within the active site. 
+
+> Q6: Generate and save a figure clearly showing the two distinct chains of HIV-protease along with the ligand. You might also consider showing the catalytic residues ASP 25 in each chain and the critical water (we recommend “Ball & Stick” for these side-chains). Add this figure to your Quarto document.
+
+![Spacefill display of catalytic ASP25 amino acids and key binding site water molecule.](1HSG 3.png)
+
+## Getting started with the Bio3D package
+
+Bio3D is an R package from CRAN for structural bioinformatics. 
+
+```{r}
+library(bio3d)
+pdb <- read.pdb("1hsg")
+pdb
+```
+
+> Q7: How many amino acid residues are there in this pdb object? 
+
+There are 198 residues in this pdb object. 
+
+> Q8: Name one of the two non-protein residues? 
+
+One of the two non-protein residues is water (HOH).
+
+> Q9: How many protein chains are in this structure? 
+
+There are 2 protein chains in this structure. 
+
+```{r}
+attributes(pdb)
+head(pdb$atom)
+```
+
+There are lots of functions that can work with these `pdb` objects:
+
+```{r}
+head(pdbseq(pdb))
+```
+
+```{r}
+library(bio3dview)
+
+view.pdb(pdb)
+```
+
+Let's try a custom view
+```{r}
+view.pdb(pdb, 
+         colorScheme="sse", 
+         backgroundColor = "black")
+```
+
+> Q. Create a custom view of HIV-Pr highlighting the active site ASP residues (`resno=25`), the two chains (in your choice of colors), and the ligand all on a custom color background? 
+
+```{r}
+library(bio3dview)
+library(NGLVieweR)
+
+active.site <- atom.select(pdb, resno = 25)
+
+view.pdb(pdb,
+         cols = c("red", "blue"),
+         highlight = active.site,
+         highlight.style = "spacefill",
+         backgroundColor = "pink") |>
+  setRock()
+```
+
+## Predict the flexibility of a given structure
+
+Let's do a Normal Mode Analysis (NMA) to predict the flexibility of a given `pdb` object:
+
+```{r}
+adk <- read.pdb("6s36")
+```
+
+A quick structure summary
+```{r}
+adk
+```
+
+```{r}
+m <- nma(adk)
+plot(m)
+```
+
+View the results with an interactive structure view:
+```{r}
+view.nma(m)
+```
+
+Write out the results for viewing in Mol-star:
+
+```{r}
+mktrj(m, file = "nma.pdb")
+```
+
+You can view quickly here or open the file made previously in Mol-star. 
+```{r}
+view.nma(m, pdb=adk)
+```
+
+## Comparative analysis of the ADK family
+
+```{r}
+# Install packages in the R console NOT your Rmd/Quarto file
+# install.packages("bio3d")
+# install.packages("NGLVieweR")
+
+#install.packages("remotes")
+#remotes::install_github("bioboot/bio3dview")
+
+#install.packages("BiocManager")
+#BiocManager::install("msa)
+```
+
+> Q10. Which of the packages above is found only on BioConductor and not CRAN?
+
+The package only found on BioConductor is "msa". 
+
+> Q11. Which of the above packages is not found on BioConductor or CRAN?
+
+The package not found on BioConductor or CRAN is bio3dview.(It is installed from GitHub).
+
+> Q12. True or False? Functions from the pak package can be used to install packages from GitHub and BitBucket? 
+
+True. 
+
+Our first step is find a sequence for this family. We will use the database iD "1ake_A" here:
+```{r}
+id <- "1ake_A"
+
+aa <- get.seq(id)
+aa
+```
+
+> Q13. How many amino acids are in this sequence, i.e. how long is this sequence? 
+
+There are 214 amino acids in this seuquence. 
+
+Search for related sequences in the database
+
+```{r}
+blast <- blast.pdb(aa)
+```
+
+```{r}
+hits <- plot(blast)
+```
+
+```{r}
+hits$pdb.id
+```
+
+```{r}
+# Download releated PDB files
+files <- get.pdb(hits$pdb.id, path="pdbs", split=TRUE, gzip=TRUE)
+```
+
+Align and supperpose all these ADK structures
+
+```{r}
+# Align releated PDBs
+pdbs <- pdbaln(files, fit = TRUE, exefile="msa")
+```
+
+```{r}
+pdbs
+```
+
+Quick interactive structural view
+
+```{r}
+view.pdbs(pdbs)
+```
+
+```{r}
+# Vector containing PDB database codes
+ids <- basename.pdb(pdbs$id)
+
+anno <- pdb.annotate(ids)
+unique(anno$source)
+```
+
+```{r}
+anno
+```
+
+## Principal component analysis
+
+PCA of all this structural data (x, y, and z atom coordinates):
+
+```{r}
+pc <- pca(pdbs)
+plot(pc)
+```
+
+```{r}
+# Calculate RMSD
+rd <- rmsd(pdbs)
+
+# Structure-based clustering
+hc.rd <- hclust(dist(rd))
+grps.rd <- cutree(hc.rd, k=3)
+
+plot(pc, 1:2, col="grey50", bg=grps.rd, pch=21, cex=1)
+```
+
+Interactive view of the PC1 captured structural differences:
+
+```{r}
+view.pca(pc)
+```
+
+```{r}
+mktrj(pc, file = "pca.pdb")
+```
+
+```{r}
+#Plotting results with ggplot2
+library(ggplot2)
+library(ggrepel)
+
+df <- data.frame(PC1=pc$z[,1], 
+                 PC2=pc$z[,2], 
+                 col=as.factor(grps.rd),
+                 ids=ids)
+
+p <- ggplot(df) + 
+  aes(PC1, PC2, col=col, label=ids) +
+  geom_point(size=2) +
+  geom_text_repel(max.overlaps = 20) +
+  theme(legend.position = "none")
+p
+```
+
