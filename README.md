@@ -4,10 +4,10 @@ My classwork from [BIMM 143 at UC San Diego Spring 2026](https://bioboot.github.
 
 ## Index of classes 
 
-Class 4: [Introduction to R]()
+Class 4: [Introduction to R](class04/class04.pdf)
 
-Class 5: [Data visualization with ggplot2]()
+Class 5: [Data visualization with ggplot2](class05/class05.qmd)
 
-Class 6: [R functions]()
+Class 6: [R functions](class06/class06.html)
 
-Class 7: [Introduction to machine learning]()
+Class 7: [Introduction to machine learning](class07/class07.qmd)
