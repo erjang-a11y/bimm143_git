@@ -117,8 +117,8 @@ A useful function here is the “base R” `sample()` function:
 sample(1:5, size=60, replace=TRUE)
 ```
 
-     [1] 3 4 4 4 5 1 1 4 5 2 5 4 2 1 2 4 1 5 2 2 2 4 5 4 1 3 1 1 1 3 4 5 2 2 1 3 4 4
-    [39] 2 5 1 2 5 1 3 5 5 1 5 1 4 5 1 5 5 3 3 3 2 3
+     [1] 2 3 3 1 4 3 2 3 2 4 3 1 3 5 3 5 4 3 2 2 4 4 4 1 5 1 5 5 4 3 1 3 3 3 1 4 5 2
+    [39] 1 5 3 4 5 2 5 1 1 3 5 4 5 5 2 4 5 4 2 3 4 2
 
 We can use this to make a random nucleotide sequence if we draw from
 “A”, “C”, “G”, and “T”…
@@ -127,7 +127,7 @@ We can use this to make a random nucleotide sequence if we draw from
 sample(x=c("A", "C", "G", "T"), size = 10, replace = TRUE)
 ```
 
-     [1] "C" "G" "A" "G" "C" "C" "A" "T" "G" "A"
+     [1] "G" "T" "G" "G" "A" "G" "A" "T" "C" "A"
 
 > **Q2a**. Write a function generate_dna() that returns a random DNA
 > sequence of a length specified by the user. Your first version should
@@ -144,7 +144,7 @@ generate_dna <- function(len) {
 generate_dna(len = 6)
 ```
 
-    [1] "T" "G" "C" "A" "G" "G"
+    [1] "C" "A" "T" "A" "A" "C"
 
 > **Q2b**. Your second version should *optionally* be able to return
 > either a multi-element vector of single character nucleotides (as
@@ -166,7 +166,7 @@ generate_dna <- function(len, single.element = TRUE) {
 generate_dna(len = 6)
 ```
 
-    [1] "CACGTA"
+    [1] "TCTGCG"
 
 Functions that could be useful here are `paste()`, `if()`, `cat()`, and
 `return()`.
@@ -206,7 +206,7 @@ x <- generate_dna(4)
 ```
 
     >len4
-    TCAT
+    CGCC
 
 ## A generate_protein() function
 
@@ -230,7 +230,7 @@ generate_protein <- function(len) {
 generate_protein(len = 6)
 ```
 
-    [1] "MQMVAQ"
+    [1] "GWYLEQ"
 
 > **Q4**. Generate random protein sequences of length 6 to 13. Adapt and
 > use your `generate_protein()` function to generate a series of random
@@ -247,21 +247,21 @@ for(l in 6:13) {
 ```
 
     >6
-    VDWKDC 
+    RPYSQI 
     >7
-    VEPYTHL 
+    WINVCCV 
     >8
-    GGCNHEMA 
+    MCILKSLY 
     >9
-    VFWFNPCAK 
+    AWKKGDMKS 
     >10
-    WWVHRIMQSL 
+    SYARSRGLHV 
     >11
-    LFETRHYEISI 
+    MMMPMMPEHTW 
     >12
-    QGDYWPHHKATR 
+    MIVRPLARNCMC 
     >13
-    IATFFCVMWLGTE 
+    QAARHHGPIQRVQ 
 
 ## Are our peptides “unique in nature”?
 
